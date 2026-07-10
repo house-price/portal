@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/Button";
 import {Field} from "@/components/ui/Field";
 import {useWhatIf} from "@/hooks/useMarket";
 import {type FormErrors, validateFeatures} from "@/lib/validation";
+import {money} from "@/lib/format";
 import type {PropertyFeatures} from "@/lib/types";
 
 type FormState = Partial<Record<keyof PropertyFeatures, number | "">>;
@@ -13,7 +14,6 @@ const EMPTY: FormState = {
     squareFootage: "", bedrooms: "", bathrooms: "", yearBuilt: "",
     lotSize: "", distanceToCityCenter: "", schoolRating: "",
 };
-const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export function WhatIfPanel() {
     const {result, loading, error, run} = useWhatIf();

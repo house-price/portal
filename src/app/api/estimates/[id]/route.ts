@@ -7,9 +7,13 @@ export async function DELETE(
     _request: Request,
     {params}: { params: Promise<{ id: string }> },
 ) {
+    const {id} = await params;
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId)) {
+        return NextResponse.json({error: "Invalid id"}, {status: 400});
+    }
     try {
-        const {id} = await params;
-        await deleteEstimate(Number(id));
+        await deleteEstimate(numericId);
         return new NextResponse(null, {status: 204});
     } catch (e) {
         return NextResponse.json({error: String(e)}, {status: 502});

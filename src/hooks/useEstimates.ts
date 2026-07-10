@@ -35,8 +35,14 @@ export function useEstimates(initial: Estimate[]) {
     );
 
     const remove = useCallback(async (id: number) => {
-        const res = await fetch(`/api/estimates/${id}`, {method: "DELETE"});
-        if (res.ok) setEstimates((prev) => prev.filter((e) => e.id !== id));
+        setError(null);
+        try {
+            const res = await fetch(`/api/estimates/${id}`, {method: "DELETE"});
+            if (!res.ok) throw new Error(`Request failed (${res.status})`);
+            setEstimates((prev) => prev.filter((e) => e.id !== id));
+        } catch (e) {
+            setError(e instanceof Error ? e.message : String(e));
+        }
     }, []);
 
     return {estimates, submitting, error, create, remove};

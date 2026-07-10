@@ -9,6 +9,7 @@ import {Field} from "@/components/ui/Field";
 import {ResultChart} from "@/components/estimator/ResultChart";
 import {useEstimates} from "@/hooks/useEstimates";
 import {type FormErrors, validateFeatures} from "@/lib/validation";
+import {money} from "@/lib/format";
 import type {Estimate, PropertyFeatures} from "@/lib/types";
 
 type FormState = Partial<Record<keyof PropertyFeatures, number | "">> & { label: string };
@@ -17,8 +18,6 @@ const EMPTY: FormState = {
     squareFootage: "", bedrooms: "", bathrooms: "", yearBuilt: "",
     lotSize: "", distanceToCityCenter: "", schoolRating: "", label: "",
 };
-
-const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export function EstimatorApp({initialHistory}: { initialHistory: Estimate[] }) {
     const {estimates, submitting, error, create, remove} = useEstimates(initialHistory);
@@ -42,8 +41,12 @@ export function EstimatorApp({initialHistory}: { initialHistory: Estimate[] }) {
         setErrors(errs);
         if (Object.keys(errs).length > 0) return; // stop on validation errors
 
-        const created = await create({...(features as PropertyFeatures), label: form.label || null});
-        setLatest(created);
+        try {
+            const created = await create({...(features as PropertyFeatures), label: form.label || null});
+            setLatest(created);
+        } catch {
+            // the hook records the error for display
+        }
     }
 
     const toggleSelect = (id: number) =>

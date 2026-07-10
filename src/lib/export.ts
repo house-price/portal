@@ -14,15 +14,21 @@ function download(filename: string, content: string, mime: string) {
     URL.revokeObjectURL(url);
 }
 
+// Quote a CSV cell when it contains a delimiter, quote, or newline (RFC 4180)
+function csvCell(v: unknown): string {
+    const s = String(v ?? "");
+    return /[",\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
+}
+
 // Export an array of rows to CSV. `columns` = [key, header] pairs.
 export function exportCsv<T>(
     filename: string,
     rows: T[],
     columns: [keyof T, string][],
 ) {
-    const header = columns.map(([, h]) => h).join(",");
+    const header = columns.map(([, h]) => csvCell(h)).join(",");
     const body = rows
-        .map((r) => columns.map(([k]) => String(r[k] ?? "")).join(","))
+        .map((r) => columns.map(([k]) => csvCell(r[k])).join(","))
         .join("\n");
     download(filename, `${header}\n${body}`, "text/csv;charset=utf-8;");
 }

@@ -9,9 +9,9 @@ import {PriceChart} from "@/components/market/PriceChart";
 import {WhatIfPanel} from "@/components/market/WhatIfPanel";
 import {useMarketStats} from "@/hooks/useMarket";
 import {exportCsv, exportPdf} from "@/lib/export";
+import {money} from "@/lib/format";
 import type {MarketFilter, MarketStats, SegmentStats} from "@/lib/types";
 
-const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 type FilterForm = Record<keyof MarketFilter, number | "">;
 const EMPTY_FILTER: FilterForm = {
     bedrooms: "", minPrice: "", maxPrice: "", minYearBuilt: "", maxYearBuilt: "",
@@ -95,7 +95,7 @@ export function MarketApp({initialStats}: { initialStats: MarketStats }) {
                         setFilter(EMPTY_FILTER);
                         apply({});
                     }}>
-                        Clear / 清除
+                        Clear
                     </Button>
                     {error && <span role="alert" className="text-sm text-red-600">{error}</span>}
                 </div>

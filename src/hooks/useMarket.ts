@@ -3,6 +3,7 @@
 // Both talk to the same-origin /api/market/* route handlers.
 import {useCallback, useState} from "react";
 import type {MarketFilter, MarketStats, PropertyFeatures, WhatIfResponse} from "@/lib/types";
+import {toQueryString} from "@/lib/format";
 
 export function useMarketStats(initial: MarketStats) {
     const [stats, setStats] = useState<MarketStats>(initial);
@@ -13,11 +14,7 @@ export function useMarketStats(initial: MarketStats) {
         setLoading(true);
         setError(null);
         try {
-            const qs = new URLSearchParams();
-            Object.entries(filter).forEach(([k, v]) => {
-                if (v !== undefined && v !== null && v !== "") qs.set(k, String(v));
-            });
-            const res = await fetch(`/api/market/stats?${qs.toString()}`);
+            const res = await fetch(`/api/market/stats?${toQueryString(filter)}`);
             if (!res.ok) throw new Error(`Request failed (${res.status})`);
             setStats((await res.json()) as MarketStats);
         } catch (e) {

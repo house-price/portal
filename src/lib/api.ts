@@ -1,6 +1,7 @@
 // Server-side backend access. Imported ONLY by RSC and route handlers (never the
 // browser), so backend URLs stay server-only and there is no CORS.
-import type {Estimate, MarketFilter, MarketStats, PropertyFeatures} from "./types";
+import type {Estimate, MarketFilter, MarketStats, PropertyFeatures, WhatIfResponse} from "./types";
+import {toQueryString} from "./format";
 
 const ESTIMATOR = process.env.ESTIMATOR_API_URL ?? "http://localhost:8080";
 const MARKET = process.env.MARKET_API_URL ?? "http://localhost:8081";
@@ -64,16 +65,12 @@ export async function deleteEstimate(id: number): Promise<void> {
 
 // ---- Market Analysis (Java already camelCase) ----
 export async function getMarketStats(filter: MarketFilter): Promise<MarketStats> {
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(filter)) {
-        if (v !== undefined && v !== null && v !== "") qs.set(k, String(v));
-    }
-    const res = await fetch(`${MARKET}/api/market/stats?${qs.toString()}`, {cache: "no-store"});
+    const res = await fetch(`${MARKET}/api/market/stats?${toQueryString(filter)}`, {cache: "no-store"});
     if (!res.ok) throw new Error(`Market error ${res.status}`);
     return (await res.json()) as MarketStats;
 }
 
-export async function whatIf(features: PropertyFeatures) {
+export async function whatIf(features: PropertyFeatures): Promise<WhatIfResponse> {
     const res = await fetch(`${MARKET}/api/market/what-if`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -81,5 +78,5 @@ export async function whatIf(features: PropertyFeatures) {
         cache: "no-store",
     });
     if (!res.ok) throw new Error(`Market error ${res.status}`);
-    return await res.json();
+    return (await res.json()) as WhatIfResponse;
 }
